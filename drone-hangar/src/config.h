@@ -6,5 +6,6 @@
 #define PIN_SONAR_ECHO 8
 #define PIN_PIR 2
 #define PIN_TEMP_SENSOR A0
+#define PIN_SERVO 9
 
 #endif

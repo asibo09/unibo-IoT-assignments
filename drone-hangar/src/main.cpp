@@ -1,6 +1,7 @@
 #include "config.h"
 #include "kernel/Scheduler.h"
 #include "tasks/BlinkTask.h"
+#include "tasks/DoorTask.h"
 #include "tasks/PirTask.h"
 #include "tasks/SonarTask.h"
 #include "tasks/TempTask.h"
@@ -11,6 +12,7 @@ BlinkTask *blinkTask;
 SonarTask *sonarTask;
 PirTask *pirTask;
 TempTask *tempTask;
+DoorTask *doorTask;
 
 void setup() {
   Serial.begin(9600);
@@ -36,6 +38,11 @@ void setup() {
   tempTask = new TempTask();
   tempTask->init(500);
   sched.addTask(tempTask);
+
+  // setup Door
+  doorTask = new DoorTask();
+  doorTask->init(3000);
+  sched.addTask(doorTask);
 }
 
 void loop() { sched.schedule(); }
