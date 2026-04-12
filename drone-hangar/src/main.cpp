@@ -3,12 +3,14 @@
 #include "tasks/BlinkTask.h"
 #include "tasks/PirTask.h"
 #include "tasks/SonarTask.h"
+#include "tasks/TempTask.h"
 #include <Arduino.h>
 
 Scheduler sched;
 BlinkTask *blinkTask;
 SonarTask *sonarTask;
 PirTask *pirTask;
+TempTask *tempTask;
 
 void setup() {
   Serial.begin(9600);
@@ -22,13 +24,18 @@ void setup() {
 
   // setup Sonar
   sonarTask = new SonarTask();
-  sonarTask->init(500);
+  sonarTask->init(1000);
   sched.addTask(sonarTask);
 
   // setup Pir
   pirTask = new PirTask();
   pirTask->init(200);
   sched.addTask(pirTask);
+
+  // setup Temp
+  tempTask = new TempTask();
+  tempTask->init(500);
+  sched.addTask(tempTask);
 }
 
 void loop() { sched.schedule(); }
