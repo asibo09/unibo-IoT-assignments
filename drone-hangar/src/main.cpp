@@ -2,13 +2,13 @@
 #include "kernel/Scheduler.h"
 #include "tasks/BlinkTask.h"
 #include "tasks/HangarControllerTask.h"
-#include "tasks/TempTask.h"
+#include "tasks/TempControllerTask.h"
 #include <Arduino.h>
 
 Scheduler sched;
 BlinkTask *blinkTask;
 HangarControllerTask *hangarTask;
-TempTask *tempTask;
+TempControllerTask *tempControllerTask;
 
 void setup() {
   Serial.begin(9600);
@@ -22,9 +22,9 @@ void setup() {
   hangarTask->init(100);
   sched.addTask(hangarTask);
 
-  tempTask = new TempTask();
-  tempTask->init(500);
-  sched.addTask(tempTask);
+  tempControllerTask = new TempControllerTask(hangarTask);
+  tempControllerTask->init(100);
+  sched.addTask(tempControllerTask);
 }
 
 void loop() {
