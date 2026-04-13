@@ -1,5 +1,6 @@
 #include "TempControllerTask.h"
 #include "../config.h"
+#include "../kernel/MsgService.h"
 #include "HangarControllerTask.h"
 #include "TempControllerTAsk.h"
 #include "devices/Led.h"
@@ -48,7 +49,7 @@ void TempControllerTask::tick() {
         // in stato di PRE_ALARM, comunica ad hangar
         state = PRE_ALARM;
         hangarTask->setPreAlarm(true);
-        Serial.println("TEMP FSM: PRE-ALLARME ATTIVO");
+        MsgService.sendMsg("LOG: TEMP FSM -> PRE-ALLARME ATTIVO");
       }
     }
     break;
@@ -61,7 +62,7 @@ void TempControllerTask::tick() {
       // torna stato NORMAL comunica ad hangar di rimuovere stato di pre-alarm
       state = NORMAL;
       hangarTask->setPreAlarm(false);
-      Serial.println("TEMP FSM: PRE-ALLARME RIENTRATO");
+      MsgService.sendMsg("LOG: TEMP FSM -> PRE-ALLARME RIENTRATO");
     }
     break;
   case CHECK_ALARM:
@@ -74,7 +75,7 @@ void TempControllerTask::tick() {
         state = ALARM;
         l3->switchOn();
         hangarTask->triggerAlarm();
-        Serial.println("TEMP FSM: ALLARME!!! SISTEMA BLOCCATO");
+        MsgService.sendMsg("LOG: TEMP FSM -> ALLARME!!! SISTEMA BLOCCATO");
       }
     }
     break;
@@ -86,10 +87,10 @@ void TempControllerTask::tick() {
         state = NORMAL;
         l3->switchOff();
         hangarTask->resetAlarm();
-        Serial.println("TEMP FSM: Sistema resettato");
+        MsgService.sendMsg("LOG: TEMP FSM -> Sistema resettato");
       } else {
-        Serial.println(
-            "TEMP FSM: Impossibile resettare. Temperatura ancora anomala");
+        MsgService.sendMsg("LOG: TEMP FSM -> Impossibile resettare. "
+                           "Temperatura ancora anomala");
       }
     }
     break;

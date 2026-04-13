@@ -1,4 +1,5 @@
 #include "config.h"
+#include "kernel/MsgService.h"
 #include "kernel/Scheduler.h"
 #include "tasks/BlinkTask.h"
 #include "tasks/HangarControllerTask.h"
@@ -11,7 +12,7 @@ HangarControllerTask *hangarTask;
 TempControllerTask *tempControllerTask;
 
 void setup() {
-  Serial.begin(9600);
+  MsgService.init();
   sched.init(50);
 
   blinkTask = new BlinkTask(PIN_LED_L2);
@@ -30,14 +31,16 @@ void setup() {
 void loop() {
   sched.schedule();
 
-  if (Serial.available()) {
-    char cmd = Serial.read();
-    if (cmd == 't') {
-      Serial.println("Comando inviato: DECOLLO");
+  if (MsgService.isMsgAvailable()) {
+    Msg *msg = MsgService.receiveMsg();
+    String cmd = msg->getContent();
+
+    if (cmd == "TAKE_OFF") {
       hangarTask->commandTakeOff();
-    } else if (cmd == 'l') {
-      Serial.println("Comando inviato: ATTERRAGGIO");
+    } else if (cmd == "LANDING") {
       hangarTask->commandLanding();
     }
+
+    delete msg;
   }
 }

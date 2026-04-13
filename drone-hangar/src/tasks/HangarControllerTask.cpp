@@ -1,5 +1,6 @@
 #include "HangarControllerTask.h"
 #include "../config.h"
+#include "../kernel/MsgService.h"
 #include <Arduino.h>
 
 HangarControllerTask::HangarControllerTask(BlinkTask *blinkerTask) {
@@ -24,6 +25,7 @@ void HangarControllerTask::init(int period) {
   Task::init(period);
   // setup iniziale: L1 acceso, porta chiusa, LCD DRONE INSIDE
   updateLCD("DRONE INSIDE");
+  MsgService.sendMsg("STATE: DRONE INSIDE");
   l1->switchOn();
   blinker->setBlinking(false);
   door->close();
@@ -40,12 +42,14 @@ void HangarControllerTask::commandLanding() { landingCmd = true; }
 
 void HangarControllerTask::setPreAlarm(bool active) {
   this->preAlarmActive = active;
+  MsgService.sendMsg("STATE: PRE_ALARM");
 }
 
 void HangarControllerTask::triggerAlarm() {
   state = ALARM_MODE;
   door->close();
   updateLCD("ALARM");
+  MsgService.sendMsg("STATE: ALARM");
   blinker->setBlinking(false);
 }
 
@@ -53,6 +57,7 @@ void HangarControllerTask::resetAlarm() {
   state = DRONE_INSIDE;
   door->close();
   updateLCD("DRONE INSIDE");
+  MsgService.sendMsg("STATE: DRONE INSIDE");
   l1->switchOn();
   takeOffCmd = false;
   landingCmd = false;
@@ -71,10 +76,11 @@ void HangarControllerTask::tick() {
         state = TAKE_OFF;
         door->open();
         updateLCD("TAKE OFF");
+        MsgService.sendMsg("STATE: TAKE_OFF");
         blinker->setBlinking(true);
         ticksCount = 0;
       } else {
-        Serial.println("Decollo negato. Pre-allarme in corso!");
+        MsgService.sendMsg("LOG: Decollo negato. Pre-allarme in corso!");
       }
     }
     break;
@@ -88,6 +94,7 @@ void HangarControllerTask::tick() {
         state = DRONE_OUT; // cambio stato in DRONE_OUT
         door->close();
         updateLCD("DRONE OUT");
+        MsgService.sendMsg("STATE: DRONE OUT");
         l1->switchOff();
         blinker->setBlinking(false);
       }
@@ -103,8 +110,9 @@ void HangarControllerTask::tick() {
       if (!preAlarmActive) {
         state = WAIT_FOR_DRONE; // cambio stato in WAIT_FOR_DRONE
         updateLCD("WAITING DRONE");
+        MsgService.sendMsg("STATE: WAIT_FOR_DRONE");
       } else {
-        Serial.println("Atterraggio negato. Pre-allarme in corso!");
+        MsgService.sendMsg("LOG: Atterraggio negato. Pre-allarme in corso!");
       }
     }
     break;
@@ -115,12 +123,14 @@ void HangarControllerTask::tick() {
       state = LANDING;       // cambio stato in LANDING
       door->open();
       updateLCD("LANDING");
+      MsgService.sendMsg("STATE: LANDING");
       blinker->setBlinking(true);
       ticksCount = 0;
     }
     break;
 
   case LANDING:
+    MsgService.sendMsg(String("DIST:") + dist);
     // stato LANDING -> porta aperta, L2 lampeggia, scritta su LCD
     if (dist < DIST_D2 && dist > 0.0) {
       ticksCount++; // conteggio secondi per cambiare stato se dist > D2 per
@@ -129,6 +139,7 @@ void HangarControllerTask::tick() {
         state = DRONE_INSIDE; // cambio stato in DRONE_INSIDE
         door->close();
         updateLCD("DRONE INSIDE");
+        MsgService.sendMsg("STATE: DRONE INSIDE");
         l1->switchOn();
         blinker->setBlinking(false);
       }
