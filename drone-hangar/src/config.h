@@ -22,11 +22,11 @@
 #define TIME_T2 30 // 3sec tempo conferma atteraggio
 
 // parametri temperatura
-#define TEMP_MIN 30.0 // pre-alarm
-#define TEMP_MAX 40.0 // alarm
+#define TEMP_1 30.0 // pre-alarm
+#define TEMP_2 40.0 // alarm
 
 // parametri tempo allarmi
-#define TIME_T3 20 // 2sec tempo conferma pre-alarm
-#define TIME_T4 30 // 3sec tempo conferma alarm
+#define TIME_T3 30 // 2sec tempo conferma pre-alarm
+#define TIME_T4 40 // 3sec tempo conferma alarm
 
 #endif
