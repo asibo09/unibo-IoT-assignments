@@ -17,6 +17,7 @@ HangarControllerTask::HangarControllerTask(BlinkTask *blinkerTask) {
   this->state = DRONE_INSIDE;
   this->takeOffCmd = false;
   this->landingCmd = false;
+  this->preAlarmActive = false;
 }
 
 void HangarControllerTask::init(int period) {
@@ -37,6 +38,26 @@ void HangarControllerTask::updateLCD(const char *message) {
 void HangarControllerTask::commandTakeOff() { takeOffCmd = true; }
 void HangarControllerTask::commandLanding() { landingCmd = true; }
 
+void HangarControllerTask::setPreAlarm(bool active) {
+  this->preAlarmActive = active;
+}
+
+void HangarControllerTask::triggerAlarm() {
+  state = ALARM_MODE;
+  door->close();
+  updateLCD("ALARM");
+  blinker->setBlinking(false);
+}
+
+void HangarControllerTask::resetAlarm() {
+  state = DRONE_INSIDE;
+  door->close();
+  updateLCD("DRONE INSIDE");
+  l1->switchOn();
+  takeOffCmd = false;
+  landingCmd = false;
+}
+
 void HangarControllerTask::tick() {
   pir->sync();
   float dist = sonar->getDistance();
@@ -46,11 +67,15 @@ void HangarControllerTask::tick() {
     // stato DRONE_INSIDE -> porta chiusa, L1 acceso, scritta su LCD
     if (takeOffCmd) {
       takeOffCmd = false;
-      state = TAKE_OFF;
-      door->open();
-      updateLCD("TAKE OFF");
-      blinker->setBlinking(true);
-      ticksCount = 0;
+      if (!preAlarmActive) {
+        state = TAKE_OFF;
+        door->open();
+        updateLCD("TAKE OFF");
+        blinker->setBlinking(true);
+        ticksCount = 0;
+      } else {
+        Serial.println("Decollo negato. Pre-allarme in corso!");
+      }
     }
     break;
 
@@ -75,8 +100,12 @@ void HangarControllerTask::tick() {
     // stato DRONE_OUT -> porta chiusa, L1 spenta, scritta su LCD
     if (landingCmd) { // comando atterraggio ricevuto
       landingCmd = false;
-      state = WAIT_FOR_DRONE; // cambio stato in WAIT_FOR_DRONE
-      updateLCD("WAITING DRONE");
+      if (!preAlarmActive) {
+        state = WAIT_FOR_DRONE; // cambio stato in WAIT_FOR_DRONE
+        updateLCD("WAITING DRONE");
+      } else {
+        Serial.println("Atterraggio negato. Pre-allarme in corso!");
+      }
     }
     break;
 
@@ -106,6 +135,8 @@ void HangarControllerTask::tick() {
     } else {
       ticksCount = 0;
     }
+    break;
+  case ALARM_MODE:
     break;
   }
 }

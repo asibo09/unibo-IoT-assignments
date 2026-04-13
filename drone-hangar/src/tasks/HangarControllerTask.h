@@ -10,7 +10,14 @@
 #include <LiquidCrystal_I2C.h>
 
 class HangarControllerTask : public Task {
-  enum State { DRONE_INSIDE, TAKE_OFF, DRONE_OUT, WAIT_FOR_DRONE, LANDING };
+  enum State {
+    DRONE_INSIDE,
+    TAKE_OFF,
+    DRONE_OUT,
+    WAIT_FOR_DRONE,
+    LANDING,
+    ALARM_MODE
+  };
   State state;
 
   HangarDoor *door;
@@ -26,6 +33,8 @@ class HangarControllerTask : public Task {
   bool takeOffCmd;
   bool landingCmd;
 
+  bool preAlarmActive;
+
   void updateLCD(const char *message);
 
 public:
@@ -36,6 +45,11 @@ public:
   // comandi decollo/atterraggio
   void commandTakeOff();
   void commandLanding();
+
+  // comandi per fsm temp
+  void setPreAlarm(bool active);
+  void triggerAlarm();
+  void resetAlarm();
 };
 
 #endif
