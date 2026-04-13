@@ -1,48 +1,43 @@
 #include "config.h"
 #include "kernel/Scheduler.h"
 #include "tasks/BlinkTask.h"
-#include "tasks/DoorTask.h"
-#include "tasks/PirTask.h"
-#include "tasks/SonarTask.h"
+#include "tasks/HangarControllerTask.h"
 #include "tasks/TempTask.h"
 #include <Arduino.h>
 
 Scheduler sched;
 BlinkTask *blinkTask;
-SonarTask *sonarTask;
-PirTask *pirTask;
+HangarControllerTask *hangarTask;
 TempTask *tempTask;
-DoorTask *doorTask;
 
 void setup() {
   Serial.begin(9600);
-  sched.init(50); // Tick base dello scheduler ogni 50ms
+  sched.init(50);
 
-  // LED
   blinkTask = new BlinkTask(PIN_LED_L2);
   blinkTask->init(500);
-  blinkTask->setBlinking(true);
   sched.addTask(blinkTask);
 
-  // setup Sonar
-  sonarTask = new SonarTask();
-  sonarTask->init(1000);
-  sched.addTask(sonarTask);
+  hangarTask = new HangarControllerTask(blinkTask);
+  hangarTask->init(100);
+  sched.addTask(hangarTask);
 
-  // setup Pir
-  pirTask = new PirTask();
-  pirTask->init(200);
-  sched.addTask(pirTask);
-
-  // setup Temp
   tempTask = new TempTask();
   tempTask->init(500);
   sched.addTask(tempTask);
-
-  // setup Door
-  doorTask = new DoorTask();
-  doorTask->init(3000);
-  sched.addTask(doorTask);
 }
 
-void loop() { sched.schedule(); }
+void loop() {
+  sched.schedule();
+
+  if (Serial.available()) {
+    char cmd = Serial.read();
+    if (cmd == 't') {
+      Serial.println("Comando inviato: DECOLLO");
+      hangarTask->commandTakeOff();
+    } else if (cmd == 'l') {
+      Serial.println("Comando inviato: ATTERRAGGIO");
+      hangarTask->commandLanding();
+    }
+  }
+}
