@@ -150,6 +150,8 @@ void start(){
 //si verifica nel caso in cui B1 non venga premuto entro 10 sec nella fase di start, si entra in deep sleep e non appena premuto torna a fase di start
 void deepSleep() {
   Serial.println("Deep sleep");
+  Serial.flush();
+
   lcd.clear();
   ledAllOff();
   digitalWrite(LS, LOW);
@@ -163,6 +165,7 @@ void deepSleep() {
   sleep_disable();
   detachInterrupt(digitalPinToInterrupt(B1));
 
+  delay(50);
   Serial.println("Wake up!");
 
   delay(100);
@@ -201,12 +204,12 @@ void generateSeq(){
   }
 
   //per vedere su serial la sequenza generata
-  // Serial.print("Seq: ");
-  // for (int i = 0; i < 4; i++) {
-  //   Serial.print(sequence[i]);
-  //   Serial.print(" ");
-  // }
-  // Serial.println();
+  /* Serial.print("Seq: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(sequence[i]);
+    Serial.print(" ");
+  }
+  Serial.println(); */
 }
 
 void turnOnLed(int index){
@@ -263,14 +266,6 @@ void roundGame(){
         changeState(SEQWRONG_STATE);
         return;
       }
-
-      /* FORSE non proprio necessario
-      // aspetta che tutti i pulsanti vengano rilasciati
-      while (digitalRead(B1) == HIGH || digitalRead(B2) == HIGH || 
-           digitalRead(B3) == HIGH || digitalRead(B4) == HIGH) {
-        delay(10);
-      }
-      */
     }
   }
 
