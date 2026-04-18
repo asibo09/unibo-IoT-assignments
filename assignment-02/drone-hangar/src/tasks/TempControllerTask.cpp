@@ -39,6 +39,8 @@ void TempControllerTask::tick() {
     if (temp < TEMP_1) {
       // torna stato NORMAL
       state = NORMAL;
+      hangarTask->setPreAlarm(false);
+      MsgService.sendMsg("LOG: TEMP FSM -> PRE-ALLARME RIENTRATO");
     } else if (temp >= TEMP_2) {
       // va in stato CHECK_ALARM
       state = CHECK_ALARM;
@@ -67,7 +69,14 @@ void TempControllerTask::tick() {
     break;
   case CHECK_ALARM:
     if (temp < TEMP_2) {
-      state = NORMAL;
+      if (temp >= TEMP_1) {
+        state = CHECK_PRE;
+        ticksCount = 0;
+      } else {
+        state = NORMAL;
+        hangarTask->setPreAlarm(false);
+        MsgService.sendMsg("LOG: TEMP FSM -> ALLARME RIENTRATO");
+      }
     } else {
       // se si super T4 va in stato di ALARM, accende L3 rosso e blocca hangar
       ticksCount++;
