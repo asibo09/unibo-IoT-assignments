@@ -19,6 +19,7 @@ class HangarControllerTask : public Task {
     ALARM_MODE
   };
   State state;
+  State savedState;
 
   HangarDoor *door;
   ProximitySensor *sonar;

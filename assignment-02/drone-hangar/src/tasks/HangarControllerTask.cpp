@@ -42,10 +42,15 @@ void HangarControllerTask::commandLanding() { landingCmd = true; }
 
 void HangarControllerTask::setPreAlarm(bool active) {
   this->preAlarmActive = active;
-  MsgService.sendMsg("STATE: PRE_ALARM");
+  if (active) {
+    MsgService.sendMsg("STATE: PRE_ALARM");
+  } else {
+    MsgService.sendMsg("STATE: NORMAL");
+  }
 }
 
 void HangarControllerTask::triggerAlarm() {
+  savedState = state;
   state = ALARM_MODE;
   door->close();
   updateLCD("ALARM");
@@ -54,13 +59,23 @@ void HangarControllerTask::triggerAlarm() {
 }
 
 void HangarControllerTask::resetAlarm() {
-  state = DRONE_INSIDE;
+  if (savedState == DRONE_OUT || savedState == WAIT_FOR_DRONE) {
+    state = DRONE_OUT;
+    updateLCD("DRONE OUT");
+    MsgService.sendMsg("STATE: DRONE OUT");
+    l1->switchOff();
+  } else {
+    state = DRONE_INSIDE;
+    updateLCD("DRONE INSIDE");
+    MsgService.sendMsg("STATE: DRONE INSIDE");
+    l1->switchOn();
+  }
+
   door->close();
-  updateLCD("DRONE INSIDE");
-  MsgService.sendMsg("STATE: DRONE INSIDE");
-  l1->switchOn();
   takeOffCmd = false;
   landingCmd = false;
+  this->preAlarmActive = false;
+  MsgService.sendMsg("STATE: NORMAL");
 }
 
 void HangarControllerTask::tick() {
@@ -86,6 +101,7 @@ void HangarControllerTask::tick() {
     break;
 
   case TAKE_OFF:
+    MsgService.sendMsg(String("DIST:") + dist);
     // stato TAKE_OFF -> porta aperta, L2 lampeggia, scritta su LCD
     if (dist > DIST_D1) {
       ticksCount++; // conteggio secondi per cambiare stato se dist > D1 per
@@ -97,6 +113,10 @@ void HangarControllerTask::tick() {
         MsgService.sendMsg("STATE: DRONE OUT");
         l1->switchOff();
         blinker->setBlinking(false);
+
+        if (preAlarmActive) {
+          MsgService.sendMsg("STATE: PRE_ALARM");
+        }
       }
     } else {
       ticksCount = 0; // reset timer se dist < D1
@@ -142,12 +162,20 @@ void HangarControllerTask::tick() {
         MsgService.sendMsg("STATE: DRONE INSIDE");
         l1->switchOn();
         blinker->setBlinking(false);
+        if (preAlarmActive) {
+          MsgService.sendMsg("STATE: PRE_ALARM");
+        }
       }
     } else {
       ticksCount = 0;
     }
     break;
   case ALARM_MODE:
+    if (takeOffCmd || landingCmd) {
+      takeOffCmd = false;
+      landingCmd = false;
+      MsgService.sendMsg("LOG: Operazione sospesa. Sistema in blocco (ALARM)!");
+    }
     break;
   }
 }
