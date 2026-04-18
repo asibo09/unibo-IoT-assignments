@@ -1,7 +1,6 @@
 #include "MsgService.h"
 #include "Arduino.h"
 
-
 String content;
 
 MsgServiceClass MsgService;
@@ -21,7 +20,7 @@ Msg *MsgServiceClass::receiveMsg() {
 }
 
 void MsgServiceClass::init() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   content.reserve(256);
   content = "";
   currentMsg = NULL;
