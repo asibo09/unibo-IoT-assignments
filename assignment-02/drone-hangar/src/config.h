@@ -14,8 +14,8 @@
 #define PIN_BUTTON_RESET 4
 
 // parametri distanze
-#define DIST_D1 1.0 // 1m drone è uscito
-#define DIST_D2 0.5 // 50cm drone è rientrato
+#define DIST_D1 0.3 // 30cm drone è uscito
+#define DIST_D2 0.2 // 20cm drone è rientrato
 
 // parametri tempo
 #define TIME_T1 20 // 2sec tempo conferma uscita
