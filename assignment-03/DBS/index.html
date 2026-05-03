@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tank Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dashboard">
+    <h1>Smart Tank Control Room</h1>
+    
+    <div class="grid">
+        <div class="panel">
+            <h3>Stato Sistema</h3>
+            <p>Livello Acqua: <span class="val" id="val-level">0</span> cm</p>
+            <p>Riempimento: <span class="val" id="val-perc">0</span> %</p>
+            <p>Stato Acqua: <span class="val" id="val-wstate" style="color:#e67e22;">NORMAL</span></p>
+            <p>Rete (TMS): <span class="val" id="val-nstate" style="color:#27ae60;">CONNECTED</span></p>
+        </div>
+
+        <div class="panel">
+            <h3>Centro di Controllo (WCS)</h3>
+            <p>Modalità Operativa:</p>
+            <button id="btn-auto" class="btn-active" onclick="setMode('AUTOMATIC')">AUTOMATIC</button>
+            <button id="btn-manual" class="btn-idle" onclick="setMode('MANUAL')">MANUAL</button>
+            
+            <h4 style="margin-top: 20px;">Apertura Valvola: <span id="val-valve" class="val">0</span> %</h4>
+            <input type="range" id="slider-valve" min="0" max="100" value="0" disabled oninput="document.getElementById('val-valve').innerText = this.value" onchange="setValve(this.value)">
+            <small id="slider-help" style="color: gray;">(Sbloccato solo in modalità MANUAL)</small>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="waterChart"></canvas>
+    </div>
+</div>
+
+<script>
+    // Grafico
+    const ctx = document.getElementById('waterChart').getContext('2d');
+    const maxDataPoints = 20;
+    const chartData = { 
+        labels: [], 
+        datasets: [{ 
+            label: 'Riempimento Acqua (%)', 
+            data: [], 
+            borderColor: '#3498db', 
+            backgroundColor: 'rgba(52, 152, 219, 0.2)', 
+            fill: true, 
+            tension: 0.4 
+        }] 
+    };
+    const waterChart = new Chart(ctx, { 
+        type: 'line', 
+        data: chartData, 
+        options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { y: { min: 0, max: 100 } } } 
+    });
+
+    // Fetch dati dal server e aggiorna dashboard
+    async function fetchData() {
+        try {
+            const response = await fetch('http://localhost:8080/api/data');
+            if (!response.ok) throw new Error("Server non raggiungibile");
+            const data = await response.json();
+            
+            // Aggiorna valori
+            document.getElementById('val-level').innerText = data.level.toFixed(1);
+            document.getElementById('val-perc').innerText = data.percentage.toFixed(1);
+            document.getElementById('val-wstate').innerText = data.waterState;
+            
+            const nStateEl = document.getElementById('val-nstate');
+            nStateEl.innerText = data.netState;
+            nStateEl.style.color = (data.netState === 'CONNECTED') ? '#27ae60' : 'red';
+
+            // Aggiorna Centro di Controllo
+            const btnAuto = document.getElementById('btn-auto');
+            const btnManual = document.getElementById('btn-manual');
+            const slider = document.getElementById('slider-valve');
+            const sliderHelp = document.getElementById('slider-help');
+
+            const isOffline = (data.netState === 'UNCONNECTED');
+
+            if (isOffline) {
+                //no rete disabilita tutto
+                btnAuto.disabled = true;
+                btnManual.disabled = true;
+                slider.disabled = true;
+                btnAuto.className = 'btn-idle';
+                btnManual.className = 'btn-idle';
+                sliderHelp.innerText = "(CENTRO DI CONTROLLO DISABILITATO - Errore Rete)";
+            } else {
+                // Se rete c'è riabilita
+                btnAuto.disabled = false;
+                btnManual.disabled = false;
+
+                if (data.mode === 'AUTOMATIC') {
+                    btnAuto.className = 'btn-active';
+                    btnManual.className = 'btn-idle';
+                    slider.disabled = true;
+                    slider.value = data.valve;
+                    document.getElementById('val-valve').innerText = data.valve;
+                    sliderHelp.innerText = "(Sbloccato solo in modalità MANUAL)";
+                } else {
+                    btnAuto.className = 'btn-idle';
+                    btnManual.className = 'btn-active';
+                    slider.disabled = false;
+                    sliderHelp.innerText = "(Trascina per controllare la valvola)";
+                }
+            }
+
+            // Aggiorna grafico
+            const now = new Date().toLocaleTimeString();
+            if (chartData.labels.length >= maxDataPoints) {
+                chartData.labels.shift();
+                chartData.datasets[0].data.shift();
+            }
+            chartData.labels.push(now);
+            chartData.datasets[0].data.push(data.percentage);
+            waterChart.update();
+
+        } catch (err) {
+            // Se Java è spento disabilita tutto
+            document.getElementById('val-nstate').innerText = "NOT AVAILABLE";
+            document.getElementById('val-nstate').style.color = "red";
+            document.getElementById('btn-auto').disabled = true;
+            document.getElementById('btn-manual').disabled = true;
+            document.getElementById('slider-valve').disabled = true;
+            document.getElementById('btn-auto').className = 'btn-idle';
+            document.getElementById('btn-manual').className = 'btn-idle';
+            document.getElementById('slider-help').innerText = "(CENTRO DI CONTROLLO DISABILITATO - Server Non Raggiungibile)";
+        }
+    }
+
+    // Invio comandi al server
+    async function sendCommand(payload) {
+        try {
+            await fetch('http://localhost:8080/api/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            fetchData();
+        } catch(e) {
+            console.error("Errore invio comando", e);
+        }
+    }
+
+    function setMode(mode) {
+        sendCommand({ action: 'SET_MODE', mode: mode });
+    }
+
+    function setValve(value) {
+        document.getElementById('val-valve').innerText = value;
+        sendCommand({ action: 'SET_VALVE', value: parseInt(value) });
+    }
+
+    async function startLoop() {
+        await fetchData();
+        setTimeout(startLoop, 1000); 
+    }
+    
+    startLoop();
+</script>
+
+</body>
+</html>
