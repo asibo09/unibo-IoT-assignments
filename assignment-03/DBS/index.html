@@ -108,6 +108,8 @@
                     btnManual.className = 'btn-active';
                     slider.disabled = false;
                     sliderHelp.innerText = "(Trascina per controllare la valvola)";
+                    slider.value = data.valve;
+                    document.getElementById('val-valve').innerText = data.valve;
                 }
             }
 
