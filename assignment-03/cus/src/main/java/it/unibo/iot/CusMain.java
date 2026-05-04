@@ -106,9 +106,11 @@ public class CusMain {
                 if (netState == NetworkState.UNCONNECTED) {
                     netState = NetworkState.CONNECTED;
                     waterState = WaterState.NORMAL;
-                    sendSerialCmd("VALVE:0");
+                    
                     System.out.println("Rete Ripristinata: Rete CONNECTED e Ritorno a NORMAL");
                     sendSerialCmd("RESTORE");
+                    try { Thread.sleep(100); } catch(Exception e) {}
+                    sendSerialCmd("VALVE:0");
                 }
 
             }
