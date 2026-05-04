@@ -73,6 +73,28 @@ public class CusMain {
         while (true) {
             long currentTime = System.currentTimeMillis();
 
+            // lettura Arduino (WCS)
+            if (serialChannel != null && serialChannel.isMsgAvailable()) {
+                try {
+                    String msg = serialChannel.receiveMsg().trim();
+                    if (msg.equals("STATE:MANUAL")) {
+                        currentMode = Mode.MANUAL;
+                        System.out.println("WCS -> Modalità MANUALE");
+                    }
+                    else if (msg.equals("STATE:AUTOMATIC")) {
+                        currentMode = Mode.AUTOMATIC;
+                        System.out.println("WCS -> Modalità AUTOMATICA");
+                    }
+                    else if (msg.startsWith("VALVE:")) {
+                        int val = Integer.parseInt(msg.split(":")[1]);
+                        currentValvePerc = val;
+                        System.out.println("WCS -> Valvola a: " + val + "%");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             // FSM Rete
             if (currentTime - lastMqttMsgTime > T2) {
                 if (netState == NetworkState.CONNECTED) {
