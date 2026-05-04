@@ -46,9 +46,24 @@ public class DashboardService extends AbstractVerticle {
 
             if ("SET_MODE".equals(action)) {
                 String mode = body.getString("mode");
-                CusMain.currentMode = "MANUAL".equals(mode) ? CusMain.Mode.MANUAL : CusMain.Mode.AUTOMATIC;
-                System.out.println("DBS-> Cambio Modalità in: " + CusMain.currentMode);
-                
+                if ("MANUAL".equals(mode)) {
+                    CusMain.currentMode = CusMain.Mode.MANUAL;
+                    System.out.println("DBS-> Cambio Modalità in: MANUAL");
+                    CusMain.sendSerialCmd("FORCE_MANUAL");
+                } else {
+                    CusMain.currentMode = CusMain.Mode.AUTOMATIC;
+                    System.out.println("DBS-> Cambio Modalità in: AUTOMATIC");
+                    CusMain.sendSerialCmd("FORCE_AUTO");
+                    try { Thread.sleep(100); } catch(Exception e) {}
+                    
+                    if (CusMain.waterState == CusMain.WaterState.NORMAL) {
+                        CusMain.sendSerialCmd("VALVE:0");
+                    } else if (CusMain.waterState == CusMain.WaterState.OVER_L1) {
+                        CusMain.sendSerialCmd("VALVE:50");
+                    } else if (CusMain.waterState == CusMain.WaterState.OVER_L2) {
+                        CusMain.sendSerialCmd("VALVE:100");
+                    }
+                }
             } else if ("SET_VALVE".equals(action)) {
                 if (CusMain.currentMode == CusMain.Mode.MANUAL) {
                     int val = body.getInteger("value");
