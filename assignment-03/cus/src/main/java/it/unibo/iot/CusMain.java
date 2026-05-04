@@ -7,7 +7,7 @@ import io.vertx.core.Vertx;
 
 public class CusMain {
 
-    static final double TANK_CAPACITY = 400.0;
+    static final double TANK_CAPACITY = 100.0;
     static final double L1 = 40.0;
     static final double L2 = 80.0;
 
@@ -51,7 +51,7 @@ public class CusMain {
 
         // inizializzazione seriale
         try {
-            serialChannel = new SerialCommChannel(PORT_NAME, 11500);
+            serialChannel = new SerialCommChannel(PORT_NAME, 9600);
             System.out.println("Seriale connessa su " + PORT_NAME);
             Thread.sleep(2000);
         } catch (Exception e) {
