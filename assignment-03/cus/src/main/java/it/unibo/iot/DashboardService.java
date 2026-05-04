@@ -32,7 +32,7 @@ public class DashboardService extends AbstractVerticle {
             JsonObject json = new JsonObject()
                 .put("level", CusMain.currentWaterLevel)
                 .put("percentage", CusMain.currentWaterPercentage)
-                .put("valve", CusMain.waterState == CusMain.WaterState.OVER_L1 ? "50" : (CusMain.waterState == CusMain.WaterState.OVER_L2 ? "100" : "0"))
+                .put("valve", String.valueOf(CusMain.currentValvePerc))
                 .put("waterState", CusMain.waterState.toString())
                 .put("netState", CusMain.netState.toString())
                 .put("mode", CusMain.currentMode.toString());
