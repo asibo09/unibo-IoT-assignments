@@ -110,8 +110,11 @@ void WcsControllerTask::tick() {
       float potValue = pot->getValue();
       int mappedLevel = (int)(potValue * 100.0);
 
-      // Aggiorno solo se il valore cambia
-      if (abs(mappedLevel - currentValveLevel) >= 1) {
+      static int lastPotLevel = -1;
+      // aggiornamento valvola solo se valore cambia di almeno 2; così non
+      // combatte con slider di operatore remoto da web
+      if (abs(mappedLevel - lastPotLevel) >= 2) {
+        lastPotLevel = mappedLevel;
         setValve(mappedLevel);
         updateLCD();
         MsgService.sendMsg("VALVE:" + String(currentValveLevel));
