@@ -62,6 +62,7 @@ void WcsControllerTask::tick() {
     Msg *msg = MsgService.receiveMsg();
     String cmd = msg->getContent();
     delete msg;
+    cmd.trim();
 
     if (cmd == "ERR") {
       state = UNCONNECTED;
@@ -69,7 +70,13 @@ void WcsControllerTask::tick() {
     } else if (cmd == "RESTORE") {
       state = AUTOMATIC;
       updateLCD();
-    } else if (cmd.startsWith("VALVE:") && state == AUTOMATIC) {
+    } else if (cmd == "FORCE_MANUAL") {
+      state = MANUAL;
+      updateLCD();
+    } else if (cmd == "FORCE_AUTO") {
+      state = AUTOMATIC;
+      updateLCD();
+    } else if (cmd.startsWith("VALVE:")) {
       // estrazione numero dopo "VALVE:"
       int level = cmd.substring(6).toInt();
       setValve(level);
