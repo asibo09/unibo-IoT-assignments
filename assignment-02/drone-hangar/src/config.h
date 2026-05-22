@@ -23,7 +23,7 @@
 
 // parametri temperatura
 #define TEMP_1 30.0 // pre-alarm
-#define TEMP_2 40.0 // alarm
+#define TEMP_2 35.0 // alarm
 
 // parametri tempo allarmi
 #define TIME_T3 30 // 2sec tempo conferma pre-alarm
