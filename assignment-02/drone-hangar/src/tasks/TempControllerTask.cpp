@@ -23,6 +23,13 @@ void TempControllerTask::init(int period) {
 
 void TempControllerTask::tick() {
   float temp = tempSensor->getTemperature();
+  static int delayCounter = 0;
+  delayCounter++;
+
+  if (delayCounter >= 10) {
+    MsgService.sendMsg("LOG: Temperatura attuale: " + String(temp) + " C");
+    delayCounter = 0;
+  }
 
   switch (state) {
   case NORMAL:
