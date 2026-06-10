@@ -1,0 +1,142 @@
+{
+    "version": 1,
+    "author": "Anonymous",
+    "editor": "wokwi",
+    "parts": [
+        {
+            "type": "wokwi-arduino-uno",
+            "id": "uno",
+            "top": 0,
+            "left": 0,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-servo",
+            "id": "servo",
+            "top": -120,
+            "left": 300,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-potentiometer",
+            "id": "pot",
+            "top": 50,
+            "left": 300,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn",
+            "top": 180,
+            "left": 300,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-lcd1602",
+            "id": "lcd",
+            "top": 280,
+            "left": 50,
+            "attrs": {
+                "pins": "i2c"
+            }
+        }
+    ],
+    "connections": [
+        [
+            "servo:V+",
+            "uno:5V",
+            "red",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "servo:GND",
+            "uno:GND",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "servo:PWM",
+            "uno:9",
+            "orange",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "pot:VCC",
+            "uno:5V",
+            "red",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "pot:GND",
+            "uno:GND",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "pot:SIG",
+            "uno:A0",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "btn:1.l",
+            "uno:2",
+            "blue",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "btn:2.l",
+            "uno:GND",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "lcd:VCC",
+            "uno:5V",
+            "red",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "lcd:GND",
+            "uno:GND",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "lcd:SDA",
+            "uno:A4",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "lcd:SCL",
+            "uno:A5",
+            "yellow",
+            [
+                "v0"
+            ]
+        ]
+    ]
+}

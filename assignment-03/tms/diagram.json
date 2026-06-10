@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "author": "Anonymous",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-half", "id": "bb1", "top": 208.2, "left": -189.2, "attrs": {} },
+    {
+      "type": "board-esp32-s3-devkitc-1",
+      "id": "esp",
+      "top": -79.47,
+      "left": -98.08,
+      "rotate": 270,
+      "attrs": {}
+    },
+    { "type": "wokwi-hc-sr04", "id": "sonar", "top": 164.7, "left": -119.3, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led_green",
+      "top": 294,
+      "left": -101.8,
+      "attrs": { "color": "green" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_red",
+      "top": 294,
+      "left": 51.8,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 339.95,
+      "left": -144,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 339.95,
+      "left": 9.6,
+      "attrs": { "value": "220" }
+    }
+  ],
+  "connections": [
+    [ "sonar:TRIG", "esp:5", "orange", [ "v19.2", "h-86.8", "v-172.8", "h9.6" ] ],
+    [ "sonar:ECHO", "esp:18", "yellow", [ "v19.2", "h95.2", "v-144", "h-124.8" ] ],
+    [ "led_green:A", "esp:4", "green", [ "h-57.6", "v-230.4", "h9.6" ] ],
+    [ "led_red:A", "esp:16", "red", [ "h19.2", "v-211.2", "h-172.8" ] ],
+    [ "bb1:13t.b", "bb1:bp.11", "red", [ "v0" ] ],
+    [ "bb1:16t.b", "bb1:bn.13", "black", [ "v0" ] ],
+    [ "bb1:19b.i", "bb1:bn.16", "black", [ "v0" ] ],
+    [ "esp:5V", "bb1:bp.24", "red", [ "v19.25", "h115.2", "v279.3" ] ],
+    [ "esp:GND.1", "bb1:bn.25", "black", [ "v9.65", "h115.2", "v298.9" ] ],
+    [ "led_green:A", "bb1:10b.g", "", [ "$bb" ] ],
+    [ "led_green:C", "bb1:9b.g", "", [ "$bb" ] ],
+    [ "led_red:A", "bb1:26b.g", "", [ "$bb" ] ],
+    [ "led_red:C", "bb1:25b.g", "", [ "$bb" ] ],
+    [ "r1:1", "bb1:3b.h", "", [ "$bb" ] ],
+    [ "r1:2", "bb1:9b.h", "", [ "$bb" ] ],
+    [ "r2:1", "bb1:19b.h", "", [ "$bb" ] ],
+    [ "r2:2", "bb1:25b.h", "", [ "$bb" ] ],
+    [ "sonar:VCC", "bb1:13t.a", "", [ "$bb" ] ],
+    [ "sonar:TRIG", "bb1:14t.a", "", [ "$bb" ] ],
+    [ "sonar:ECHO", "bb1:15t.a", "", [ "$bb" ] ],
+    [ "sonar:GND", "bb1:16t.a", "", [ "$bb" ] ],
+    [ "bb1:3b.i", "bb1:bn.2", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
