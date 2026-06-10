@@ -4,8 +4,6 @@ import jssc.*;
 
 /**
  * Comm channel implementation based on serial port.
- * 
- * @author aricci
  *
  */
 public class SerialCommChannel implements CommChannel, SerialPortEventListener {

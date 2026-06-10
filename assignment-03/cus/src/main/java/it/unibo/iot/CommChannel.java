@@ -2,8 +2,6 @@ package it.unibo.iot;
 
 /**
  * Simple interface for an async msg communication channel
- * @author aricci
- *
  */
 public interface CommChannel {
 	

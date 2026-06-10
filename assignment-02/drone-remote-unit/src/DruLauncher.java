@@ -18,7 +18,7 @@ public class DruLauncher {
             controller.start();
 
         } catch (Exception e) {
-            System.err.println("Errore di avvio: Assicurarsi che Arduino sia collegato e la porta sia corretta!");
+            System.err.println("Errore di avvio");
             e.printStackTrace();
         }
     }
