@@ -38,7 +38,7 @@ Un sistema IoT distribuito per il monitoraggio e la gestione remota (WCS, TMS, C
 ---
 
 ## 🛠️ Tecnologie e Strumenti
-* **Linguaggi:** C++, Java, HTML/CSS.
+* **Linguaggi:** C/C++, Java, HTML/CSS.
 * **Piattaforme:** Arduino, ESP32.
 * **Protocolli & Librerie:** UART (Seriale), I2C, MQTT, Vertx.
 
